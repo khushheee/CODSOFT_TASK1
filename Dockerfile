@@ -1,25 +1,26 @@
-# Stage 1: Build - just copy static files
+# Stage 1: Build
 FROM nginx:alpine AS builder
 WORKDIR /app
 COPY app/ .
 
-# Stage 2: Production with security hardening
+# Stage 2: Production with Security
 FROM nginx:alpine
 LABEL maintainer="Khushi Chauhan"
 LABEL version="1.0"
-LABEL description="CodSoft Task 1 - Secure Dockerized DevSecOps Dashboard"
+LABEL description="CodSoft Task 1 - Secure DevSecOps Dashboard"
 
-# Install wget for healthcheck
-RUN apk add --no-cache wget
+# 1. Create non-root user AND give permissions to nginx folders
+RUN addgroup -g 1001 -S appgroup && \
+    adduser -S appuser -u 1001 -G appgroup && \
+    mkdir -p /var/cache/nginx /var/run/nginx /usr/share/nginx/html && \
+    chown -R appuser:appgroup /var/cache/nginx /var/run/nginx /usr/share/nginx/html /etc/nginx/conf.d
 
-# Security: Create non-root user
-RUN addgroup -g 1001 -S appgroup && adduser -S appuser -u 1001 -G appgroup
+# 2. Change nginx to run on 8080 instead of 80
+RUN sed -i 's/listen 80;/listen 8080;/g' /etc/nginx/conf.d/default.conf
 
-# Copy files and set permissions
 COPY --from=builder /app /usr/share/nginx/html
 RUN chown -R appuser:appgroup /usr/share/nginx/html
 
-# Expose port and healthcheck
 EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD wget -qO- http://localhost:8080 || exit 1

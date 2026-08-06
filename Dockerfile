@@ -1,27 +1,23 @@
 # Stage 1: Build
 FROM nginx:alpine AS builder
 WORKDIR /app
-COPY app/.
+COPY app/ .
 
 # Stage 2: Production
 FROM nginx:alpine
+
 LABEL maintainer="Khushi Chauhan"
 LABEL version="1.0"
-LABEL description="CodSoft Task 1 - Secure Dockerized DevSecOps Dashboard"
+LABEL description="CODSOFT_TASK1 - Secure Dockerized DevSecOps Dashboard"
 
-# Install wget for healthcheck
-RUN apk add --no-cache wget
-
-# Copy files
+# Copy files from builder
 COPY --from=builder /app /usr/share/nginx/html
 
-# Fix permissions: Give nginx user access to cache + html
-RUN chown -R nginx:nginx /usr/share/nginx/html /var/cache/nginx /var/run /var/log/nginx && \
-    chmod -R 755 /var/cache/nginx /var/run /var/log/nginx
+# Give nginx user permission to write
+RUN chown -R nginx:nginx /usr/share/nginx/html \
+    && chmod -R 755 /usr/share/nginx/html
 
-# Switch to nginx user instead of creating new one
-USER nginx
-
+# Don't switch user. Let nginx start as root, then it drops to nginx user itself
 EXPOSE 80
 
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \

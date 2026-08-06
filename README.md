@@ -20,7 +20,7 @@ The "DevSecOps Dashboard" is a responsive web dashboard that shows real-time sta
 ##  Tech Stack
 `Docker` `Nginx` `HTML5` `CSS3` `DevSecOps`
 
-## 🚀 How to Run Locally
+##  How to Run Locally
 
 ### Prerequisites
 Docker Desktop installed
@@ -32,9 +32,9 @@ Docker Desktop installed
     cd CODSOFT_TASK1
 
 2.  **Build the Docker Image**
-    
-    docker build -t codsoft-task1:v1 .
 
+          docker build -t codsoft-task1:v1 .
+    
 4.  **Run the Container**
    
         docker run -d -p 8080:80 --name codsoft-app codsoft-task1:v1
